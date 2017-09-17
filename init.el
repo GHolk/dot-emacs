@@ -95,6 +95,11 @@ when sentence end at eol in evil."
    
    (:name evil-surround
           :after (global-evil-surround-mode 1))
+   (:name evil-args
+          :after ((define-key evil-inner-text-objects-map
+                    (kbd "a") 'evil-inner-arg)
+                  (define-key evil-outer-text-objects-map
+                    (kbd "a") 'evil-outer-arg)))
    (:name rainbow-delimiters
           :after (progn
                    (add-hook 'prog-mode-hook
@@ -107,7 +112,8 @@ when sentence end at eol in evil."
 
 (setq el-get-packages
       '(el-get smex markdown-mode pangu-spacing mediawiki js2-mode
-               evil evil-surround rainbow-delimiters))
+               evil evil-surround evil-args
+               rainbow-delimiters))
 
 (el-get 'sync el-get-packages)
 
