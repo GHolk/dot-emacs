@@ -44,8 +44,10 @@ when sentence end at eol in evil."
                             (after (point)))
                        (if (>= 1 (- after before))
                            (forward-sentence arg))))
+                   (define-key evil-replace-state-map
+                     (kbd "C-z") #'evil-normal-state)
                    (define-key evil-motion-state-map
-                     (kbd "M-e") 'force-forward-sentence)
+                     (kbd "M-e") #'force-forward-sentence)
                    (defalias 'evil-insert-state 'evil-emacs-state
                      "use emacs state as insert state")
                    (defalias 'evil-previous-line 'evil-previous-visual-line
@@ -96,10 +98,11 @@ when sentence end at eol in evil."
    (:name evil-surround
           :after (global-evil-surround-mode 1))
    (:name evil-args
-          :after ((define-key evil-inner-text-objects-map
+          :after (progn
+                   (define-key evil-inner-text-objects-map
                     (kbd "a") 'evil-inner-arg)
-                  (define-key evil-outer-text-objects-map
-                    (kbd "a") 'evil-outer-arg)))
+                   (define-key evil-outer-text-objects-map
+                     (kbd "a") 'evil-outer-arg)))
    (:name rainbow-delimiters
           :after (progn
                    (add-hook 'prog-mode-hook
@@ -142,6 +145,7 @@ when sentence end at eol in evil."
 ;; free most space
 (menu-bar-mode -1)
 (customize-set-variable 'mode-line-format nil)
+
 (customize-set-variable 'indent-tabs-mode nil)
 
 ;; let M-a M-e distinct `，；`
