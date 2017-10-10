@@ -144,7 +144,8 @@ when sentence end at eol in evil."
 (customize-set-variable 'url-user-agent "Emacs25")
 ;; free most space
 (menu-bar-mode -1)
-(customize-set-variable 'mode-line-format nil)
+(tool-bar-mode -1)
+;; (customize-set-variable 'mode-line-format nil)
 
 (customize-set-variable 'indent-tabs-mode nil)
 
@@ -170,4 +171,4 @@ when sentence end at eol in evil."
 (define-key emacs-lisp-mode-map
   (kbd "TAB") 'completion-at-point)
 
-(set-face-attribute 'default nil :height 200)
+(set-face-attribute 'default nil :height 180)
