@@ -166,7 +166,9 @@ when sentence end at eol in evil."
  "my local info directory, always a symbol link to other directory.")
 
 (load "~/.emacs.d/sdcv.el")
-(global-set-key (kbd "C-c d") 'kid-sdcv-to-buffer)
+(global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
+
+(global-set-key (kbd "C-c m") #'manual-entry)
 
 (define-key emacs-lisp-mode-map
   (kbd "TAB") 'completion-at-point)
