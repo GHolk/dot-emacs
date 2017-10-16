@@ -1,5 +1,6 @@
 [Unit]
 Description=Emacs: the extensible, self-documenting text editor
+After=dbus.service
 
 [Service]
 Type=forking
