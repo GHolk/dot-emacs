@@ -52,6 +52,8 @@ when sentence end at eol in evil."
                      "use emacs state as insert state")
                    (defalias 'evil-previous-line 'evil-previous-visual-line
                      "always use visual line instead of realy line")
+                   (define-key evil-emacs-state-map
+                     (kbd "C-o") #'evil-execute-in-normal-state)
                    (defalias 'evil-next-line 'evil-next-visual-line
                      "always use visual line instead of realy line")
                    (customize-set-variable
@@ -174,3 +176,5 @@ when sentence end at eol in evil."
   (kbd "TAB") 'completion-at-point)
 
 (set-face-attribute 'default nil :height 180)
+
+(add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
