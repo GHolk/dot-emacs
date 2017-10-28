@@ -111,9 +111,9 @@ when sentence end at eol in evil."
                              'nice-bracket-highligh)))
    (:name evil-numbers
           :after (progn
-                   (define-key evil-normal-state-map
+                   (define-key evil-motion-state-map
                      (kbd "+") #'evil-numbers/inc-at-pt)
-                   (define-key evil-normal-state-map
+                   (define-key evil-motion-state-map
                      (kbd "-") #'evil-numbers/dec-at-pt)))
    (:name evil-goggles
           :after (progn
