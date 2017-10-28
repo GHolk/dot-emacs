@@ -118,7 +118,9 @@ when sentence end at eol in evil."
    (:name evil-goggles
           :after (progn
                    (evil-goggles-mode)
-                   (evil-goggles-use-diff-faces)))
+                   (evil-goggles-use-diff-faces)
+                   (customize-set-variable
+                    'evil-goggles-duration 0.100)))
     ))
 
 (defun nice-bracket-highligh ()
