@@ -109,18 +109,23 @@ when sentence end at eol in evil."
           :after (progn
                    (add-hook 'prog-mode-hook
                              'nice-bracket-highligh)))
+   (:name evil-numbers
+          :after (progn
+                   (define-key evil-normal-state-map
+                     (kbd "+") #'evil-numbers/inc-at-pt)
+                   (define-key evil-normal-state-map
+                     (kbd "-") #'evil-numbers/dec-at-pt)))
     ))
 
 (defun nice-bracket-highligh ()
   (rainbow-delimiters-mode t)
   (show-paren-mode t))
 
-(setq el-get-packages
-      '(el-get smex markdown-mode pangu-spacing mediawiki js2-mode
-               evil evil-surround evil-args
-               rainbow-delimiters))
-
-(el-get 'sync el-get-packages)
+(el-get 'sync
+        '(el-get
+          smex markdown-mode pangu-spacing mediawiki js2-mode
+          evil evil-surround evil-args evil-numbers
+          rainbow-delimiters js-comint))
 
 (require 'package)
 (package-initialize)
@@ -178,3 +183,20 @@ when sentence end at eol in evil."
 (set-face-attribute 'default nil :height 180)
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
+
+;; (defun assocr (images &optional tags)
+;;   (interactive
+;;    "sImages: 
+;; sTags: ")
+;;   (insert
+;;    (shell-command-to-string
+;;     (string-join (list
+;;                   "echo"
+;;                   "assocr"
+;;                   (if tags
+;;                       (concat "-t " tags)
+;;                     "")
+;;                   images)
+;;                  " ")))
+;; )
+
