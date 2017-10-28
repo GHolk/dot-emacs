@@ -115,6 +115,10 @@ when sentence end at eol in evil."
                      (kbd "+") #'evil-numbers/inc-at-pt)
                    (define-key evil-normal-state-map
                      (kbd "-") #'evil-numbers/dec-at-pt)))
+   (:name evil-goggles
+          :after (progn
+                   (evil-goggles-mode)
+                   (evil-goggles-use-diff-faces)))
     ))
 
 (defun nice-bracket-highligh ()
@@ -126,6 +130,11 @@ when sentence end at eol in evil."
           smex markdown-mode pangu-spacing mediawiki js2-mode
           evil evil-surround evil-args evil-numbers
           rainbow-delimiters js-comint))
+
+
+(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+(el-get-bundle evil-goggles)
+
 
 (require 'package)
 (package-initialize)
