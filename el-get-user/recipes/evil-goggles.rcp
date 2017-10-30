@@ -1,6 +1,10 @@
-(:name evil-numbers
+(:name evil-goggles
        :type github
        :description "Display visual hint on evil edit operations"
        :pkgname "edkolev/evil-goggles"
-       :depends evil)
-
+       :depends evil
+       :after (progn
+                (evil-goggles-mode)
+                (evil-goggles-use-diff-faces)
+                (customize-set-variable
+                 'evil-goggles-duration 0.100)))

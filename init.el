@@ -3,10 +3,15 @@
 
 ;; el-get at top!
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
-(unless (require 'el-get nil t)
-  (url-retrieve
-   "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
-   (lambda (s) (end-of-buffer) (eval-print-last-sexp))))
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve
+       "https://github.com/dimitri/el-get/raw/master/el-get-install.el")
+    (end-of-buffer)
+    (eval-print-last-sexp)))
+
+(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+;; (add-to-list 'el-get-user-package-directory "~/.emacs.d/el-get-user/init")
 
 (setq
  el-get-sources
@@ -109,33 +114,17 @@ when sentence end at eol in evil."
           :after (progn
                    (add-hook 'prog-mode-hook
                              'nice-bracket-highligh)))
-   (:name evil-numbers
-          :after (progn
-                   (define-key evil-motion-state-map
-                     (kbd "+") #'evil-numbers/inc-at-pt)
-                   (define-key evil-motion-state-map
-                     (kbd "-") #'evil-numbers/dec-at-pt)))
-   (:name evil-goggles
-          :after (progn
-                   (evil-goggles-mode)
-                   (evil-goggles-use-diff-faces)
-                   (customize-set-variable
-                    'evil-goggles-duration 0.100)))
     ))
 
 (defun nice-bracket-highligh ()
   (rainbow-delimiters-mode t)
   (show-paren-mode t))
 
-(el-get 'sync
+(el-get nil
         '(el-get
           smex markdown-mode pangu-spacing mediawiki js2-mode
-          evil evil-surround evil-args evil-numbers
+          evil evil-surround evil-args evil-numbers evil-goggles
           rainbow-delimiters js-comint))
-
-
-(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
-(el-get-bundle evil-goggles)
 
 
 (require 'package)
@@ -218,3 +207,15 @@ when sentence end at eol in evil."
                (file-writable-p buffer-file-name))
     (find-alternate-file (concat "/sudo:root@localhost:"
                                  buffer-file-name))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (rainbow-mode))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
