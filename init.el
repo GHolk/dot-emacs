@@ -11,7 +11,8 @@
     (eval-print-last-sexp)))
 
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
-;; (add-to-list 'el-get-user-package-directory "~/.emacs.d/el-get-user/init")
+(customize-set-variable 'el-get-user-package-directory
+                        "~/.emacs.d/el-get-user/init")
 
 (setq
  el-get-sources
@@ -33,92 +34,7 @@
                     'js2-mode-assume-strict nil)
                    (customize-set-variable
                     'js2-strict-missing-semi-warning nil)))
-   (:name evil
-          :after (progn
-                   (customize-set-variable 'evil-shift-width 4)
-                   (customize-set-variable 'evil-find-skip-newlines t)
-                   (customize-set-variable 'evil-want-fine-undo t)
-                   (customize-set-variable 'evil-want-Y-yank-to-eol t)
-                   (defun force-forward-sentence (&optional arg)
-                     "fix can not forward sentence 
-when sentence end at eol in evil."
-                     (interactive "^p")
-                     (unless arg (setq arg 1))
-                     (let* ((before (point))
-                            (move (forward-sentence arg))
-                            (after (point)))
-                       (if (>= 1 (- after before))
-                           (forward-sentence arg))))
-                   (define-key evil-replace-state-map
-                     (kbd "C-z") #'evil-normal-state)
-                   (define-key evil-motion-state-map
-                     (kbd "M-e") #'force-forward-sentence)
-                   (defalias 'evil-insert-state 'evil-emacs-state
-                     "use emacs state as insert state")
-                   (defalias 'evil-previous-line 'evil-previous-visual-line
-                     "always use visual line instead of realy line")
-                   (define-key evil-emacs-state-map
-                     (kbd "C-o") #'evil-execute-in-normal-state)
-                   (defalias 'evil-next-line 'evil-next-visual-line
-                     "always use visual line instead of realy line")
-                   (customize-set-variable
-                    'evil-overriding-maps
-                    (mapcar (lambda (map-and-state)
-                              (if (eq 'Info-mode-map (car map-and-state))
-                                  '(Info-mode-map . emacs)
-                                map-and-state))
-                            evil-overriding-maps))
-                   (evil-define-key 'motion Info-mode-map
-                     (kbd "RET") 'Info-follow-nearest-node)
-                   (define-key evil-motion-state-map
-                     (kbd "TAB") nil)
-
-                   (let ((key (kbd "0")))
-                     (define-key evil-outer-text-objects-map
-                       key 'evil-a-paren)
-                     (define-key evil-inner-text-objects-map
-                       key 'evil-inner-paren))
-
-                   (define-key evil-motion-state-map
-                     (kbd "SPC") 'evil-scroll-page-down)
-                   (define-key evil-motion-state-map 
-                     (kbd "m") 'evil-set-marker)
-
-                   (evil-ex-define-cmd "q[uit]" 'evil-delete-buffer)
-                   (evil-define-command
-                     evil-save-and-delete-buffer (file &optional bang)
-                     "Saves the current buffer and only delete buffer."
-                     :repeat nil
-                     (interactive "<f><!>")
-                     (evil-write nil nil nil file bang)
-                     (evil-delete-buffer (current-buffer)))
-                   (evil-ex-define-cmd "wq" 'evil-save-and-delete-buffer)
-
-                   (define-key evil-ex-completion-map
-                     (kbd "C-b") 'backward-char)
-                   (define-key evil-ex-completion-map
-                     (kbd "C-a") 'move-beginning-of-line)
-                   (define-key evil-ex-completion-map
-                     (kbd "C-k") 'kill-line)
-                   (evil-mode 1)))
-   
-   (:name evil-surround
-          :after (global-evil-surround-mode 1))
-   (:name evil-args
-          :after (progn
-                   (define-key evil-inner-text-objects-map
-                    (kbd "a") 'evil-inner-arg)
-                   (define-key evil-outer-text-objects-map
-                     (kbd "a") 'evil-outer-arg)))
-   (:name rainbow-delimiters
-          :after (progn
-                   (add-hook 'prog-mode-hook
-                             'nice-bracket-highligh)))
     ))
-
-(defun nice-bracket-highligh ()
-  (rainbow-delimiters-mode t)
-  (show-paren-mode t))
 
 (el-get nil
         '(el-get
@@ -207,15 +123,5 @@ when sentence end at eol in evil."
                (file-writable-p buffer-file-name))
     (find-alternate-file (concat "/sudo:root@localhost:"
                                  buffer-file-name))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (rainbow-mode))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+(load-theme 'tango-dark)
