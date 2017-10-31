@@ -10,31 +10,10 @@
     (end-of-buffer)
     (eval-print-last-sexp)))
 
-(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+(add-to-list 'el-get-recipe-path
+             "~/.emacs.d/el-get-user/recipes")
 (customize-set-variable 'el-get-user-package-directory
                         "~/.emacs.d/el-get-user/init")
-
-(setq
- el-get-sources
- '((:name pangu-spacing
-          :after (progn
-                   (customize-set-variable
-                    'pangu-spacing-real-insert-separtor t)
-                   ;; true add space into document
-                   (global-pangu-spacing-mode 1)))
-   (:name smex
-          :after (progn
-                   (global-set-key (kbd "M-x") 'smex)
-                   (global-set-key (kbd "M-X") 'smex-major-mode-commands)))
-   (:name js2-mode
-          :after (progn
-                   (add-to-list 'auto-mode-alist
-                                `(,(rx ".js" string-end) . js2-mode))
-                   (customize-set-variable
-                    'js2-mode-assume-strict nil)
-                   (customize-set-variable
-                    'js2-strict-missing-semi-warning nil)))
-    ))
 
 (el-get nil
         '(el-get
@@ -43,12 +22,17 @@
           rainbow-delimiters js-comint))
 
 
+
+;; fix package list error
+;; https://github.com/syl20bnr/spacemacs/issues/3854
+(load-library "url-handlers") 
+
 (require 'package)
-(package-initialize)
 (setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
+      '(("gnu" . "https://elpa.gnu.org/packages/")
         ("marmalade" . "http://marmalade-repo.org/packages/")
-        ("melpa" . "http://melpa.milkbox.net/packages/")))
+        ("melpa" . "https://melpa.milkbox.net/packages/")))
+(package-initialize)
 
 
 (require 'ido)
@@ -124,4 +108,54 @@
     (find-alternate-file (concat "/sudo:root@localhost:"
                                  buffer-file-name))))
 
+
+;; send to selection if ok
+(customize-set-variable
+ 'select-enable-primary t)
+
 (load-theme 'tango-dark)
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")) t)
+ '(el-get-user-package-directory "~/.emacs.d/el-get-user/init")
+ '(evil-find-skip-newlines t t)
+ '(evil-goggles-duration 0.1)
+ '(evil-overriding-maps
+   (quote
+    ((Buffer-menu-mode-map)
+     (color-theme-mode-map)
+     (comint-mode-map)
+     (compilation-mode-map)
+     (grep-mode-map)
+     (dictionary-mode-map)
+     (ert-results-mode-map . motion)
+     (speedbar-key-map)
+     (speedbar-file-key-map)
+     (speedbar-buffers-key-map))))
+ '(evil-shift-width 4)
+ '(evil-want-Y-yank-to-eol t)
+ '(evil-want-fine-undo t)
+ '(indent-tabs-mode nil)
+ '(js2-mode-assume-strict nil t)
+ '(js2-strict-missing-semi-warning nil t)
+ '(package-selected-packages (quote (rainbow-mode)))
+ '(pangu-spacing-real-insert-separtor t)
+ '(sentence-end-base "[,.?!…‽][]\"'”’)}]*")
+ '(sentence-end-without-space "。．？！，；")
+ '(url-user-agent "Emacs25"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(evil-goggles-delete-face ((t (:inherit diff-removed))))
+ '(evil-goggles-paste-face ((t (:inherit diff-added))))
+ '(evil-goggles-undo-redo-add-face ((t (:inherit diff-added))))
+ '(evil-goggles-undo-redo-change-face ((t (:inherit diff-changed))))
+ '(evil-goggles-undo-redo-remove-face ((t (:inherit diff-removed))))
+ '(evil-goggles-yank-face ((t (:inherit diff-changed)))))
