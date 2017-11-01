@@ -15,11 +15,10 @@
 (customize-set-variable 'el-get-user-package-directory
                         "~/.emacs.d/el-get-user/init")
 
-(el-get nil
-        '(el-get
-          smex markdown-mode pangu-spacing mediawiki js2-mode
-          evil evil-surround evil-args evil-numbers evil-goggles
-          rainbow-delimiters js-comint))
+(el-get nil '(el-get
+              smex markdown-mode pangu-spacing mediawiki js2-mode
+              evil evil-surround evil-args evil-numbers evil-goggles
+              rainbow-delimiters js-comint))
 
 
 
@@ -145,6 +144,7 @@
  '(js2-strict-missing-semi-warning nil t)
  '(package-selected-packages (quote (rainbow-mode)))
  '(pangu-spacing-real-insert-separtor t)
+ '(select-enable-primary t)
  '(sentence-end-base "[,.?!…‽][]\"'”’)}]*")
  '(sentence-end-without-space "。．？！，；")
  '(url-user-agent "Emacs25"))
@@ -153,6 +153,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(diff-changed ((t (:background "dim gray"))))
  '(evil-goggles-delete-face ((t (:inherit diff-removed))))
  '(evil-goggles-paste-face ((t (:inherit diff-added))))
  '(evil-goggles-undo-redo-add-face ((t (:inherit diff-added))))
