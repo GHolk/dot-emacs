@@ -18,16 +18,18 @@ when sentence end at eol in evil."
   (kbd "C-z") #'evil-normal-state)
 (define-key evil-motion-state-map
   (kbd "M-e") #'force-forward-sentence)
+(defalias #'evil-insert-state #'evil-emacs-state
+  "use emacs state as insert state")
 (define-key evil-emacs-state-map
   (kbd "C-o") #'evil-execute-in-normal-state)
-(defalias 'evil-insert-state 'evil-emacs-state
-  "use emacs state as insert state")
+;; (define-key evil-emacs-state-map
+;;   (kbd "ESC") #'evil-exit-emacs-state)
 (defalias #'evil-previous-line #'evil-previous-visual-line
   "always use visual line instead of realy line")
 (defalias #'evil-next-line #'evil-next-visual-line
   "always use visual line instead of realy line")
 
-;;; review until here
+;; customize Info mode
 (customize-set-variable
  'evil-overriding-maps
  (remove-if (lambda (map-and-state)
@@ -57,12 +59,15 @@ when sentence end at eol in evil."
   (interactive "<f><!>")
   (evil-write nil nil nil file bang)
   (evil-delete-buffer (current-buffer)))
-(evil-ex-define-cmd "wq" 'evil-save-and-delete-buffer)
+(evil-ex-define-cmd "wq" #'evil-save-and-delete-buffer)
 
 (define-key evil-ex-completion-map
-  (kbd "C-b") 'backward-char)
+  (kbd "C-b") #'backward-char)
 (define-key evil-ex-completion-map
-  (kbd "C-a") 'move-beginning-of-line)
+  (kbd "C-a") #'move-beginning-of-line)
 (define-key evil-ex-completion-map
-  (kbd "C-k") 'kill-line)
+  (kbd "C-k") #'kill-line)
+(define-key evil-ex-completion-map
+  (kbd "C-d") nil)
+
 (evil-mode 1)
