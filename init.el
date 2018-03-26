@@ -4,11 +4,11 @@
 ;; el-get at top!
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
 (unless (require 'el-get nil 'noerror)
-  (with-current-buffer
       (url-retrieve
-       "https://github.com/dimitri/el-get/raw/master/el-get-install.el")
+       "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
+(lambda (s)
     (end-of-buffer)
-    (eval-print-last-sexp)))
+    (eval-print-last-sexp))))
 
 (add-to-list 'el-get-recipe-path
              "~/.emacs.d/el-get-user/recipes")
@@ -16,7 +16,7 @@
                         "~/.emacs.d/el-get-user/init")
 
 (el-get nil '(el-get
-              smex markdown-mode pangu-spacing mediawiki js2-mode
+              smex markdown-mode pangu-spacing js2-mode
               evil evil-surround evil-args evil-numbers evil-goggles
               rainbow-delimiters js-comint))
 
@@ -33,6 +33,9 @@
         ("melpa" . "https://melpa.milkbox.net/packages/")))
 (package-initialize)
 
+(defun disable-pangu-mode ()
+  (pangu-spacing-mode -1))
+(add-hook 'nxml-mode-hook #'disable-pangu-mode)
 
 (require 'ido)
 (ido-mode t)
@@ -41,7 +44,7 @@
 <https://emacs.stackexchange.com/questions/3729/how-do-i-bind-keys-in-ido>"
   (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match))
-(add-hook 'ido-setup-hook 'my-ido-bind-key)
+(add-hook 'ido-setup-hook #'my-ido-bind-key)
 (global-set-key (kbd "C-x f") 'ido-find-file)
 
  
@@ -79,7 +82,7 @@
 (define-key emacs-lisp-mode-map
   (kbd "TAB") 'completion-at-point)
 
-(set-face-attribute 'default nil :height 180)
+(set-face-attribute 'default nil :height 130)
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
 
