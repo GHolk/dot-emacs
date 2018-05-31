@@ -6,9 +6,9 @@
 (unless (require 'el-get nil 'noerror)
       (url-retrieve
        "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
-(lambda (s)
-    (end-of-buffer)
-    (eval-print-last-sexp))))
+       (lambda (s)
+         (end-of-buffer)
+         (eval-print-last-sexp))))
 
 (add-to-list 'el-get-recipe-path
              "~/.emacs.d/el-get-user/recipes")
@@ -18,7 +18,7 @@
 (el-get nil '(el-get
               smex markdown-mode pangu-spacing js2-mode
               evil evil-surround evil-args evil-numbers evil-goggles
-              rainbow-delimiters js-comint))
+              rainbow-delimiters js-comint vimish-fold))
 
 
 
@@ -27,10 +27,10 @@
 (load-library "url-handlers") 
 
 (require 'package)
-(setq package-archives
+(setf package-archives
       '(("gnu" . "https://elpa.gnu.org/packages/")
-        ("marmalade" . "http://marmalade-repo.org/packages/")
-        ("melpa" . "https://melpa.milkbox.net/packages/")))
+        ("marmalade" . "https://marmalade-repo.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
 (defun disable-pangu-mode ()
@@ -86,21 +86,6 @@
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
 
-;; (defun assocr (images &optional tags)
-;;   (interactive
-;;    "sImages: 
-;; sTags: ")
-;;   (insert
-;;    (shell-command-to-string
-;;     (string-join (list
-;;                   "echo"
-;;                   "assocr"
-;;                   (if tags
-;;                       (concat "-t " tags)
-;;                     "")
-;;                   images)
-;;                  " ")))
-;; )
 
 (defadvice ido-find-file
   (after find-file-sudo activate)
@@ -145,7 +130,10 @@
  '(indent-tabs-mode nil)
  '(js2-mode-assume-strict nil t)
  '(js2-strict-missing-semi-warning nil t)
- '(package-selected-packages (quote (rainbow-mode)))
+ '(org-agenda-files nil)
+ '(package-selected-packages
+   (quote
+    (## "evil-vimish-fold" evil-vimish-fold rainbow-mode)))
  '(pangu-spacing-real-insert-separtor t)
  '(select-enable-primary t)
  '(sentence-end-base "[,.?!…‽][]\"'”’)}]*")

@@ -71,3 +71,5 @@ when sentence end at eol in evil."
   (kbd "C-d") nil)
 
 (evil-mode 1)
+
+(evil-vimish-fold 1)
