@@ -33,6 +33,10 @@
         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
+;; my own library
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'evil-little-word)
+
 (defun disable-pangu-mode ()
   (pangu-spacing-mode -1))
 (add-hook 'nxml-mode-hook #'disable-pangu-mode)
