@@ -47,6 +47,11 @@
 (add-hook 'ido-setup-hook #'my-ido-bind-key)
 (global-set-key (kbd "C-x f") 'ido-find-file)
 
+;; hint elisp function
+(add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+(which-function-mode 1)
+
+(evil-vimish-fold-mode 1)
  
 ;;;; about Emacs itself
 ;; emacs has no user-agent default??
