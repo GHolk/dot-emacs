@@ -54,7 +54,7 @@
 ;; hint elisp function
 (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
 (which-function-mode 1)
-
+(evil-commentary-mode 1)
 (evil-vimish-fold-mode 1)
  
 ;;;; about Emacs itself
