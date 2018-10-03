@@ -71,48 +71,6 @@ when sentence end at eol in evil."
   (kbd "C-d") nil)
 
 
-(defmacro define-and-bind-text-object (name key start-regex end-regex)
-  "copy and paste from stackoverflow:
-https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp"
-  (let* ((name-string (symbol-name name))
-         (inner-name (make-symbol (concat "evil-inner-" name-string)))
-         (outer-name (make-symbol (concat "evil-outer-" name-string))))
-    `(progn
-       (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
-       (evil-define-text-object ,outer-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count t))
-       (define-key evil-inner-text-objects-map ,key (function ,inner-name))
-       (define-key evil-outer-text-objects-map ,key (function ,outer-name)))))
-
-;; kebab-case use o
-;; snake_case
-;; (define-and-bind-text-object SNAKE "S"
-;;   "[^A-Za-z0-9_]" "[^A-Za-z0-9_]")
-(progn
-  (evil-define-text-object evil-inner-SNAKE
-    (count &optional beg end type)
-    (evil-select-paren "[^A-Za-z0-9_]" "[^A-Za-z0-9_]" beg end type count nil))
-  (evil-define-text-object evil-outer-SNAKE
-    (count &optional beg end type)
-    (evil-select-paren "[^A-Za-z0-9_]" "[^A-Za-z0-9_]" beg end type count t))
-  (define-key evil-inner-text-objects-map "S" #'evil-inner-SNAKE)
-  (define-key evil-outer-text-objects-map "S" #'evil-outer-SNAKE))
-
-;; dot.notation.chain
-;; (define-and-bind-text-object dot "."
-;;   "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]")
-(progn
-  (evil-define-text-object evil-inner-dot
-    (count &optional beg end type)
-    (evil-select-paren "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]" beg end type count nil))
-  (evil-define-text-object evil-outer-dot
-    (count &optional beg end type)
-    (evil-select-paren "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]" beg end type count t))
-  (define-key evil-inner-text-objects-map "." #'evil-inner-dot)
-  (define-key evil-outer-text-objects-map "." #'evil-outer-dot))
-
-
 (evil-mode 1)
 
 

@@ -1,6 +1,7 @@
 ;; author: gholk
 ;; description: some command suit evil and emacs.
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; let ! work in text object, not work in line.
 (evil-define-operator evil-shell-command-inline (beg end type)
   (if (eq type 'block)
@@ -16,9 +17,11 @@
 (define-key evil-motion-state-map (kbd "!")
   #'evil-shell-command-inline)
 
+
 ;; eval expression in visual region
 (define-key evil-visual-state-map (kbd "C-x C-e")
   #'eval-region)
+
 
 ;; easy define emacs region command
 (defmacro define-pipe-region-command (name command)
@@ -29,33 +32,58 @@
                                ,command
                                no-buffer replace))))
 
+;; all in one macro
 (defmacro define-pipe-region-command-and-evil
     (command-name evil-name command)
-  `(define-pipe-region-command ,command-name ,command)
-  `(evil-define-operator ,evil-name (beg end type)
-     (if (eq type 'block)
-         (evil-apply-on-block (function ,evil-name) beg end nil)
-       (,command-name beg end))))
+  `(progn
+     (define-pipe-region-command ,command-name ,command)
+     (evil-define-operator ,evil-name (beg end type)
+       (if (eq type 'block)
+           (evil-apply-on-block (function ,evil-name) beg end nil)
+         (,command-name beg end)))))
 
-(define-pipe-region-command cconv-tw-region
+(define-pipe-region-command-and-evil
+  cconv-tw-region evil-cconv-tw
   "cconv -f UTF8 -t UTF8-TW")
-(evil-define-operator evil-cconv-tw (beg end type)
-  "Convert text to traditional chinese."
-  (if (eq type 'block)
-      (evil-apply-on-block #'evil-cconv-tw beg end nil)
-    (cconv-tw-region beg end)))
 (define-key evil-normal-state-map
-  (kbd "gC") #'evil-cconv-tw)
+  (kbd "gt") #'evil-cconv-tw)
 
-(define-pipe-region-command cconv-cn-region
+
+(define-pipe-region-command-and-evil
+  cconv-cn-region evil-cconv-cn
   "cconv -f UTF8 -t UTF8-CN")
-(evil-define-operator evil-cconv-cn (beg end type)
-  "Convert text to simply chinese."
-  (if (eq type 'block)
-      (evil-apply-on-block #'evil-cconv-cn beg end nil)
-    (cconv-cn-region beg end)))
 (define-key evil-normal-state-map
-  (kbd "gc") #'evil-cconv-cn)
+  (kbd "gT") #'evil-cconv-cn)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; custome text-object
+(defmacro define-and-bind-text-object (name key start-regex end-regex)
+  "copy and paste from stackoverflow:
+https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp"
+  (let* ((name-string (symbol-name name))
+         (inner-name (make-symbol (concat "evil-inner-" name-string)))
+         (outer-name (make-symbol (concat "evil-outer-" name-string))))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key (function ,inner-name))
+       (define-key evil-outer-text-objects-map ,key (function ,outer-name)))))
+
+;; kebab-case use o
+;; path/file
+(define-and-bind-text-object PATH "/"
+  "[=\s\n;\"']" "[=\s\n;\"']")
+
+;; snake_case
+(define-and-bind-text-object SNAKE "S"
+  "[^A-Za-z0-9_]" "[^A-Za-z0-9_]")
+
+;; dot.notation.chain
+(define-and-bind-text-object dot "."
+  "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]")
 
 
 (provide 'evil-command-plus)

@@ -36,6 +36,7 @@
 ;; my own library
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'evil-little-word)
+(require 'evil-command-plus)
 
 (defun disable-pangu-mode ()
   (pangu-spacing-mode -1))
