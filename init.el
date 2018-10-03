@@ -37,6 +37,8 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'evil-little-word)
 (require 'evil-command-plus)
+(load "sdcv.el")
+(global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
 (defun disable-pangu-mode ()
   (pangu-spacing-mode -1))
@@ -84,8 +86,6 @@
  '("/home/gholk/.local/share/info/")
  "my local info directory, always a symbol link to other directory.")
 
-(load "~/.emacs.d/sdcv.el")
-(global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
 (global-set-key (kbd "C-c m") #'manual-entry)
 
