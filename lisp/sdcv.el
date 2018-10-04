@@ -13,7 +13,9 @@
     (if (null (cdr (window-list)))
         (setq onewindow t)
       (setq onewindow nil))
-    (let ((process (start-process-shell-command "sdcv" "*sdcv*" "sdcv" "-n" word)))
+    (let ((process (start-process-shell-command
+                    "sdcv" "*sdcv*"
+                    (format "sdcv -n \"%s\"" word))))
       (set-process-sentinel
        process
        (lambda (process signal)
