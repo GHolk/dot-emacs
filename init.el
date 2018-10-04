@@ -36,8 +36,8 @@
 ;; my own library
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'evil-little-word)
-(require 'evil-command-plus)
-(load "sdcv.el")
+(load "evil-command-plus")
+(load "sdcv")
 (global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
 (defun disable-pangu-mode ()
@@ -56,7 +56,6 @@
 
 ;; hint elisp function
 (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-(which-function-mode 1)
 (evil-commentary-mode 1)
 (evil-vimish-fold-mode 1)
  
@@ -118,8 +117,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")) t)
+ '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")))
  '(el-get-user-package-directory "~/.emacs.d/el-get-user/init")
+ '(evil-disable-insert-state-bindings t)
  '(evil-find-skip-newlines t t)
  '(evil-goggles-duration 0.1)
  '(evil-overriding-maps

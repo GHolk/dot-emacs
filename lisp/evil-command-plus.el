@@ -18,11 +18,13 @@
   #'evil-shell-command-inline)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval expression in visual region
 (define-key evil-visual-state-map (kbd "C-x C-e")
   #'eval-region)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; easy define emacs region command
 (defmacro define-pipe-region-command (name command)
   `(defun ,name (start end)
@@ -58,32 +60,34 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; custome text-object
-(defmacro define-and-bind-text-object (name key start-regex end-regex)
+(defmacro define-and-bind-text-object
+    (inner-name outer-name key start-regex end-regex)
   "copy and paste from stackoverflow:
 https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp"
-  (let* ((name-string (symbol-name name))
-         (inner-name (make-symbol (concat "evil-inner-" name-string)))
-         (outer-name (make-symbol (concat "evil-outer-" name-string))))
-    `(progn
-       (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
-       (evil-define-text-object ,outer-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count t))
-       (define-key evil-inner-text-objects-map ,key (function ,inner-name))
-       (define-key evil-outer-text-objects-map ,key (function ,outer-name)))))
+  `(progn
+     (evil-define-text-object ,inner-name (count &optional beg end type)
+       (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+     (evil-define-text-object ,outer-name (count &optional beg end type)
+       (evil-select-paren ,start-regex ,end-regex beg end type count t))
+     (define-key evil-inner-text-objects-map ,key (function ,inner-name))
+     (define-key evil-outer-text-objects-map ,key (function ,outer-name))))
 
 ;; kebab-case use o
 ;; path/file
-(define-and-bind-text-object PATH "/"
-  "[=\s\n;\"']" "[=\s\n;\"']")
+(define-and-bind-text-object
+  evil-inner-PATH evil-outer-PATH "/"
+  "[=:\s\n;\"']" "[=:\s\n;\"']")
 
 ;; snake_case
-(define-and-bind-text-object SNAKE "S"
+(define-and-bind-text-object
+  evil-inner-SNAKE evil-outer-SNAKE "S"
   "[^A-Za-z0-9_]" "[^A-Za-z0-9_]")
 
 ;; dot.notation.chain
-(define-and-bind-text-object dot "."
+(define-and-bind-text-object
+  evil-inner-DOT evil-outer-DOT "."
   "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]")
 
 
-(provide 'evil-command-plus)
+;; use load only, file has no good prefix
+;; (provide 'evil-command-plus)
