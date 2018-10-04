@@ -18,16 +18,20 @@ when sentence end at eol in evil."
   (kbd "C-z") #'evil-normal-state)
 (define-key evil-motion-state-map
   (kbd "M-e") #'force-forward-sentence)
-(defalias #'evil-insert-state #'evil-emacs-state
-  "use emacs state as insert state")
-(define-key evil-emacs-state-map
-  (kbd "C-o") #'evil-execute-in-normal-state)
-;; (define-key evil-emacs-state-map
-;;   (kbd "ESC") #'evil-exit-emacs-state)
-(defalias #'evil-previous-line #'evil-previous-visual-line
-  "always use visual line instead of realy line")
-(defalias #'evil-next-line #'evil-next-visual-line
-  "always use visual line instead of realy line")
+(customize-set-variable 'evil-disable-insert-state-bindings t)
+(define-key evil-normal-state-map
+  (kbd "C-z") #'evil-insert-state)
+(define-key evil-insert-state-map
+  (kbd "C-z") #'evil-normal-state)
+
+(define-key evil-motion-state-map
+  "gj" #'evil-next-line)
+(define-key evil-motion-state-map
+  "gk" #'evil-previous-line)
+(define-key evil-motion-state-map
+  "j" #'evil-next-visual-line)
+(define-key evil-motion-state-map
+  "k" #'evil-previous-visual-line)
 
 ;; customize Info mode
 (customize-set-variable
