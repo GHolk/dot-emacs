@@ -7,12 +7,12 @@
   (if (eq type 'block)
       (evil-apply-on-block #'evil-shell-command-inline beg end nil)
     (let ((command (read-shell-command "!")))
-      (if (buffer-modified-p)
-          (let ((no-buffer nil)
-                (replace t))
-            (shell-command-on-region beg end command
-                                     no-buffer replace))
-    (shell-command-on-region beg end command)))))
+      (if buffer-read-only
+          (shell-command-on-region beg end command)
+        (let ((no-buffer nil)
+              (replace t))
+          (shell-command-on-region beg end command
+                                   no-buffer replace))))))
 
 (define-key evil-motion-state-map (kbd "!")
   #'evil-shell-command-inline)
