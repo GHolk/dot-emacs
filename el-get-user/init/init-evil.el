@@ -14,24 +14,33 @@ when sentence end at eol in evil."
     (if (>= 1 (- after before))
         (forward-sentence arg))))
 
-(define-key evil-replace-state-map
-  (kbd "C-z") #'evil-normal-state)
 (define-key evil-motion-state-map
   (kbd "M-e") #'force-forward-sentence)
+
+;; replace state
+(setf evil-replace-state-cursor 'bar)
+(define-key evil-replace-state-map
+  (kbd "C-z") #'evil-normal-state)
+
+;; insert state
 (customize-set-variable 'evil-disable-insert-state-bindings t)
+(setf evil-insert-state-cursor 'hbar)
+(define-key evil-insert-state-map
+  (kbd "C-w") #'evil-delete-backward-word)
 (define-key evil-normal-state-map
   (kbd "C-z") #'evil-insert-state)
 (define-key evil-insert-state-map
   (kbd "C-z") #'evil-normal-state)
 
-(define-key evil-motion-state-map
-  "gj" #'evil-next-line)
-(define-key evil-motion-state-map
-  "gk" #'evil-previous-line)
-(define-key evil-motion-state-map
-  "j" #'evil-next-visual-line)
-(define-key evil-motion-state-map
-  "k" #'evil-previous-visual-line)
+;; motion state
+;; (define-key evil-motion-state-map
+;;   "gj" #'evil-next-line)
+;; (define-key evil-motion-state-map
+;;   "gk" #'evil-previous-line)
+;; (define-key evil-motion-state-map
+;;   "j" #'evil-next-visual-line)
+;; (define-key evil-motion-state-map
+;;   "k" #'evil-previous-visual-line)
 
 ;; customize Info mode
 (customize-set-variable

@@ -119,7 +119,6 @@
  ;; If there is more than one, they won't work right.
  '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")))
  '(el-get-user-package-directory "~/.emacs.d/el-get-user/init")
- '(evil-disable-insert-state-bindings t)
  '(evil-find-skip-newlines t t)
  '(evil-goggles-duration 0.1)
  '(evil-overriding-maps
