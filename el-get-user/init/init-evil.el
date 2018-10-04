@@ -31,6 +31,8 @@ when sentence end at eol in evil."
   (kbd "C-z") #'evil-insert-state)
 (define-key evil-insert-state-map
   (kbd "C-z") #'evil-normal-state)
+(define-key evil-insert-state-map
+  (kbd "C-o") #'evil-execute-in-normal-state)
 
 ;; motion state
 ;; (define-key evil-motion-state-map
