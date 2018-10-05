@@ -3,26 +3,16 @@
 (customize-set-variable 'evil-want-fine-undo t)
 (customize-set-variable 'evil-want-Y-yank-to-eol t)
 
-(defun force-forward-sentence (&optional arg)
-  "fix can not forward sentence 
-when sentence end at eol in evil."
-  (interactive "^p")
-  (unless arg (setq arg 1))
-  (let* ((before (point))
-         (move (forward-sentence arg))
-         (after (point)))
-    (if (>= 1 (- after before))
-        (forward-sentence arg))))
-
-(define-key evil-motion-state-map
-  (kbd "M-e") #'force-forward-sentence)
+;; eval expression in visual region
+(define-key evil-visual-state-map (kbd "C-x C-e")
+  #'eval-region)
 
 ;; replace state
 (setf evil-replace-state-cursor 'bar)
 (define-key evil-replace-state-map
   (kbd "C-z") #'evil-normal-state)
 
-;; insert state
+;; insert state as emacs state
 (customize-set-variable 'evil-disable-insert-state-bindings t)
 (setf evil-insert-state-cursor 'hbar)
 (define-key evil-insert-state-map
@@ -34,15 +24,6 @@ when sentence end at eol in evil."
 (define-key evil-insert-state-map
   (kbd "C-o") #'evil-execute-in-normal-state)
 
-;; motion state
-;; (define-key evil-motion-state-map
-;;   "gj" #'evil-next-line)
-;; (define-key evil-motion-state-map
-;;   "gk" #'evil-previous-line)
-;; (define-key evil-motion-state-map
-;;   "j" #'evil-next-visual-line)
-;; (define-key evil-motion-state-map
-;;   "k" #'evil-previous-visual-line)
 
 ;; customize Info mode
 (customize-set-variable
@@ -50,40 +31,45 @@ when sentence end at eol in evil."
  (remove-if (lambda (map-and-state)
               (eq 'Info-mode-map (car map-and-state)))
             evil-overriding-maps))
-(evil-define-key 'motion Info-mode-map
-  (kbd "RET") #'Info-follow-nearest-node)
+(define-key evil-motion-state-map
+  (kbd "RET") nil)
 (define-key evil-motion-state-map
   (kbd "TAB") nil)
 
-(let ((key (kbd "0")))
-  (define-key evil-outer-text-objects-map
-    key #'evil-a-paren)
-  (define-key evil-inner-text-objects-map
-    key #'evil-inner-paren))
-
+;; for read document
 (define-key evil-motion-state-map
   (kbd "SPC") #'evil-scroll-page-down)
 (define-key evil-motion-state-map 
   (kbd "m") #'evil-set-marker)
 
-(evil-ex-define-cmd "q[uit]" 'evil-delete-buffer)
-(evil-define-command
-  evil-save-and-delete-buffer (file &optional bang)
-  "Saves the current buffer and only delete buffer."
-  :repeat nil
-  (interactive "<f><!>")
-  (evil-write nil nil nil file bang)
-  (evil-delete-buffer (current-buffer)))
-(evil-ex-define-cmd "wq" #'evil-save-and-delete-buffer)
 
+;; triger text object `)` without shift
+(define-key evil-outer-text-objects-map
+  "0" #'evil-a-paren)
+(define-key evil-inner-text-objects-map
+  "0" #'evil-inner-paren)
+
+
+;; bash like ex mode, remove strange ex default binding
 (define-key evil-ex-completion-map
-  (kbd "C-b") #'backward-char)
+  (kbd "C-b") nil)
 (define-key evil-ex-completion-map
-  (kbd "C-a") #'move-beginning-of-line)
+  (kbd "C-a") nil)
 (define-key evil-ex-completion-map
-  (kbd "C-k") #'kill-line)
+  (kbd "C-k") nil)
 (define-key evil-ex-completion-map
   (kbd "C-d") nil)
+
+
+;; always search forward n backward N
+(defun evil-search-forward-always (&optional arg pred)
+  "evil use emacs default isearch, if search backward
+variable isearch-forward would be set to nil,
+detail function would be in evil-search-incrementally ."
+  (setf isearch-forward t))
+
+(advice-add #'evil-search-backward :after 
+            #'evil-search-forward-always)
 
 
 (evil-mode 1)

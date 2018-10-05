@@ -32,3 +32,5 @@
              (local-set-key (kbd "q") 'quit-window)
              (evil-motion-state))
            (goto-char (point-min))))))))
+
+(provide 'sdcv)

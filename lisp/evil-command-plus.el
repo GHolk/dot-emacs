@@ -1,30 +1,7 @@
 ;; author: gholk
 ;; description: some command suit evil and emacs.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; let ! work in text object, not work in line.
-(evil-define-operator evil-shell-command-inline (beg end type)
-  (if (eq type 'block)
-      (evil-apply-on-block #'evil-shell-command-inline beg end nil)
-    (let ((command (read-shell-command "!")))
-      (if buffer-read-only
-          (shell-command-on-region beg end command)
-        (let ((no-buffer nil)
-              (replace t))
-          (shell-command-on-region beg end command
-                                   no-buffer replace))))))
 
-(define-key evil-motion-state-map (kbd "!")
-  #'evil-shell-command-inline)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; eval expression in visual region
-(define-key evil-visual-state-map (kbd "C-x C-e")
-  #'eval-region)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; easy define emacs region command
 (defmacro define-pipe-region-command (name command)
   `(defun ,name (start end)
@@ -89,5 +66,49 @@ https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new
   "[^A-Za-z0-9_.]" "[^A-Za-z0-9_.]")
 
 
-;; use load only, file has no good prefix
-;; (provide 'evil-command-plus)
+;; fix insert state cursor over head a character
+(defun force-forward-sentence (&optional arg)
+  "fix can not forward sentence 
+when sentence end at eol in evil."
+  (interactive "^p")
+  (unless arg (setq arg 1))
+  (let* ((before (point))
+         (move (forward-sentence arg))
+         (after (point)))
+    (if (>= 1 (- after before))
+        (forward-sentence arg))))
+
+(define-key evil-motion-state-map
+  (kbd "M-e") #'force-forward-sentence)
+
+
+;; let `:q` kill buffer, just like vi
+(evil-ex-define-cmd "q[uit]" 'evil-delete-buffer)
+(evil-define-command
+  evil-save-and-delete-buffer (file &optional bang)
+  "Saves the current buffer and only delete buffer."
+  :repeat nil
+  (interactive "<f><!>")
+  (evil-write nil nil nil file bang)
+  (evil-delete-buffer (current-buffer)))
+(evil-ex-define-cmd "wq" #'evil-save-and-delete-buffer)
+
+
+;; let ! work in text object, not work in line.
+(evil-define-operator evil-shell-command-inline (beg end type)
+  (if (eq type 'block)
+      (evil-apply-on-block #'evil-shell-command-inline beg end nil)
+    (let ((command (read-shell-command "!")))
+      (if buffer-read-only
+          (shell-command-on-region beg end command)
+        (let ((no-buffer nil)
+              (replace t))
+          (shell-command-on-region beg end command
+                                   no-buffer replace))))))
+
+(define-key evil-motion-state-map (kbd "!")
+  #'evil-shell-command-inline)
+
+
+;; provide feature name prevent re include
+(provide 'evil-command-plus)
