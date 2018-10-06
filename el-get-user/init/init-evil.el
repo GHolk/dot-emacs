@@ -4,8 +4,13 @@
 (customize-set-variable 'evil-want-Y-yank-to-eol t)
 
 ;; eval expression in visual region
+(defun eval-region-and-show (start end)
+  (interactive (list (region-beginning)
+                     (region-end)))
+  (let ((show-result t))
+    (eval-region start end show-result)))
 (define-key evil-visual-state-map (kbd "C-x C-e")
-  #'eval-region)
+  #'eval-region-and-show)
 
 ;; replace state
 (setf evil-replace-state-cursor 'bar)

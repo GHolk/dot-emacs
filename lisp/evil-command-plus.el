@@ -94,6 +94,27 @@ when sentence end at eol in evil."
 (evil-ex-define-cmd "wq" #'evil-save-and-delete-buffer)
 
 
+;; easy define command throuth existing elisp function
+(defmacro evil-define-replace-string
+    (evil-command-name function-name)
+  "define a command take select text as function input
+and replace select text with function output."
+  `(evil-define-operator ,evil-command-name (beg end type)
+     (if (eq type 'block)
+         (evil-apply-on-block (function ,evil-command-name) beg end nil)
+       (let* ((input (buffer-substring-no-properties beg end))
+              (output (funcall ,function-name input)))
+         (if buffer-read-only
+             (message input)
+           (progn (delete-region beg end)
+                  (insert output)))))))
+
+;; url encode decode
+(evil-define-replace-string evil-url-encode #'url-encode-url)
+(define-key evil-motion-state-map "gp" #'evil-url-encode)
+(evil-define-replace-string evil-url-decode #'url-unhex-string)
+(define-key evil-motion-state-map "gP" #'evil-url-decode)
+
 ;; let ! work in text object, not work in line.
 (evil-define-operator evil-shell-command-inline (beg end type)
   (if (eq type 'block)
