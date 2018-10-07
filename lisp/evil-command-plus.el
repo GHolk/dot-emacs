@@ -130,6 +130,34 @@ and replace select text with function output."
 (define-key evil-motion-state-map (kbd "!")
   #'evil-shell-command-inline)
 
+;; move over text object
+(evil-define-motion evil-forward-text-object
+  (count &optional text-object)
+  "move to the end of following input text-object define 
+in evil-inner-text-objects-map ."
+  (unless text-object
+      (setf text-object
+            (let ((key (read-key-sequence "text-object:")))
+              (lookup-key evil-inner-text-objects-map key))))
+  (let* ((region (funcall text-object count))
+         (end (nth 1 region)))
+    (goto-char end)))
+(define-key evil-motion-state-map (kbd "M-w")
+  #'evil-forward-text-object)
+
+(evil-define-motion evil-backward-text-object
+  (count &optional text-object)
+  "move to the begin of following input text-object define 
+in evil-inner-text-objects-map ."
+  (unless text-object
+      (setf text-object
+            (let ((key (read-key-sequence "text-object:")))
+              (lookup-key evil-inner-text-objects-map key))))
+  (let* ((region (funcall text-object count))
+         (start (nth 0 region)))
+    (goto-char start)))
+(define-key evil-motion-state-map (kbd "M-b")
+  #'evil-backward-text-object)
 
 ;; provide feature name prevent re include
 (provide 'evil-command-plus)
