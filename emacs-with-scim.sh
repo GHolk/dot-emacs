@@ -1,7 +1,7 @@
 #!/bin/sh
 
 wait_emacs_start() {
-    while sleep 1s
+    while sleep 10s
     do
         if systemctl --user status emacs >/dev/null
         then break
