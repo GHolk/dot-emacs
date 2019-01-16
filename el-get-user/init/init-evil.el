@@ -75,7 +75,8 @@ detail function would be in evil-search-incrementally ."
 
 (advice-add #'evil-search-backward :after 
             #'evil-search-forward-always)
-
+(advice-add #'evil-search-word-backward :after 
+            #'evil-search-forward-always)
 
 (evil-mode 1)
 
