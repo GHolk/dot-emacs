@@ -94,6 +94,7 @@
 (set-face-attribute 'default nil :height 130)
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 
 
 (defadvice ido-find-file
