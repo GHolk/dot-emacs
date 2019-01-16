@@ -41,6 +41,12 @@
 (define-key evil-motion-state-map
   (kbd "TAB") nil)
 
+;; slow move
+(define-key evil-motion-state-map
+  (kbd "C-f") #'evil-scroll-down)
+(define-key evil-motion-state-map
+  (kbd "C-b") #'evil-scroll-up)
+
 ;; for read document
 (define-key evil-motion-state-map
   (kbd "SPC") #'evil-scroll-page-down)
