@@ -37,6 +37,7 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'evil-little-word)
 (require 'evil-command-plus)
+(require 'mblog-tool)
 (require 'sdcv)
 (global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
