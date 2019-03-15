@@ -28,6 +28,8 @@
   (kbd "C-z") #'evil-normal-state)
 (define-key evil-insert-state-map
   (kbd "C-o") #'evil-execute-in-normal-state)
+(define-key evil-insert-state-map
+  (kbd "C-r") #'evil-paste-from-register)
 
 
 ;; customize Info mode
@@ -71,6 +73,12 @@
 (define-key evil-ex-completion-map
   (kbd "C-d") nil)
 
+;; allow repeat of yank command
+(unless (evil-get-command-property #'evil-yank :repeat)
+  (evil-set-command-property
+   #'evil-yank :repeat
+   (evil-get-command-property #'evil-delete :repeat)))
+
 
 ;; always search forward n backward N
 (defun evil-search-forward-always (&optional arg pred)
@@ -83,6 +91,10 @@ detail function would be in evil-search-incrementally ."
             #'evil-search-forward-always)
 (advice-add #'evil-search-word-backward :after 
             #'evil-search-forward-always)
+
+;; close window by `q` in evil registry `:reg`
+(define-key evil-list-view-mode-map
+  (kbd "q") #'quit-window)
 
 (evil-mode 1)
 
