@@ -110,9 +110,13 @@ and replace select text with function output."
                   (insert output)))))))
 
 ;; url encode decode
-(evil-define-replace-string evil-url-encode #'url-encode-url)
+(defun url-unhex-string-decode-utf8 (code)
+  "decode url and decode binary to utf8."
+  (-> code (url-unhex-string 'allow-newlines)
+           (decode-coding-string 'utf-8)))
+(evil-define-replace-string evil-url-encode #'url-hexify-string)
 (define-key evil-motion-state-map "gp" #'evil-url-encode)
-(evil-define-replace-string evil-url-decode #'url-unhex-string)
+(evil-define-replace-string evil-url-decode #'url-unhex-string-decode-utf8)
 (define-key evil-motion-state-map "gP" #'evil-url-decode)
 
 ;; let ! work in text object, not work in line.
