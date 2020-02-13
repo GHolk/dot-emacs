@@ -27,10 +27,11 @@
 (load-library "url-handlers") 
 
 (require 'package)
-(setf package-archives
-      '(("gnu" . "https://elpa.gnu.org/packages/")
-        ("marmalade" . "https://marmalade-repo.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
+(customize-set-variable
+ 'package-archives
+ '(("gnu" . "http://elpa.gnu.org/packages/")
+   ("marmalade" . "http://marmalade-repo.org/packages/")
+   ("melpa-stable" . "http://stable.melpa.org/packages/")))
 (package-initialize)
 
 ;; my own library
@@ -92,7 +93,8 @@
 (define-key emacs-lisp-mode-map
   (kbd "TAB") 'completion-at-point)
 
-(set-face-attribute 'default nil :height 130)
+(customize-set-variable 'default-frame-alist '((height . 24)))
+(set-face-attribute 'default nil :height 150)
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
@@ -147,7 +149,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (## "evil-vimish-fold" evil-vimish-fold rainbow-mode)))
+    (color-theme-sanityinc-solarized "color-theme-solarized" color-theme-solarize "color-theme-solarize" color-theme-solarized ## "evil-vimish-fold" evil-vimish-fold rainbow-mode)))
  '(pangu-spacing-real-insert-separtor t)
  '(select-enable-primary t)
  '(sentence-end-base "[,.?!…‽][]\"'”’)}]*")
