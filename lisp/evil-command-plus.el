@@ -25,14 +25,14 @@
   cconv-tw-region evil-cconv-tw
   "cconv -f UTF8 -t UTF8-TW")
 (define-key evil-normal-state-map
-  (kbd "gt") #'evil-cconv-tw)
+  (kbd "gtt") #'evil-cconv-tw)
 
 
 (define-pipe-region-command-and-evil
   cconv-cn-region evil-cconv-cn
   "cconv -f UTF8 -t UTF8-CN")
 (define-key evil-normal-state-map
-  (kbd "gT") #'evil-cconv-cn)
+  (kbd "gtT") #'evil-cconv-cn)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -115,9 +115,43 @@ and replace select text with function output."
   (-> code (url-unhex-string 'allow-newlines)
            (decode-coding-string 'utf-8)))
 (evil-define-replace-string evil-url-encode #'url-hexify-string)
-(define-key evil-motion-state-map "gp" #'evil-url-encode)
+(define-key evil-motion-state-map "gtp" #'evil-url-encode)
 (evil-define-replace-string evil-url-decode #'url-unhex-string-decode-utf8)
-(define-key evil-motion-state-map "gP" #'evil-url-decode)
+(define-key evil-motion-state-map "gtP" #'evil-url-decode)
+
+;;;; quote to implement
+;; conventional \" \x \n \t \\
+;; bash $
+;; c %
+;; csv " ""
+
+(defun replace-regexp-in-string-times (string &rest replace-list)
+  (if (null replace-list) string
+    (let ((regexp (first replace-list))
+          (replacement (second replace-list))
+          (replace-list-rest (nthcdr 2 replace-list)))
+      (apply #'replace-regexp-in-string-times
+             (replace-regexp-in-string regexp replacement string
+                                       'fix-case 'literal)
+       replace-list-rest))))
+
+(defun string-classic-quote (plain)
+  (replace-regexp-in-string-times plain
+                                  "\\\\" "\\\\"
+                                  "\"" "\\\""
+                                  "'" "\\'"))
+
+(defun string-classic-dequote (code)
+  (replace-regexp-in-string-times code
+                                  "\\\\\\\\" "\\\\"
+                                  "\"" "\\\""
+                                  "'" "\\'"))
+   
+(evil-define-replace-string evil-string-quote-classic #'string-quote-classic)
+(define-key evil-motion-state-map "gt'" #'evil-string-quote-classic)
+
+(evil-define-replace-string evil-string-quote-classic #'string-quote-classic)
+(define-key evil-motion-state-map "gT'" #'evil-string-quote-classic)
 
 ;; let ! work in text object, not work in line.
 (evil-define-operator evil-shell-command-inline (beg end type)
