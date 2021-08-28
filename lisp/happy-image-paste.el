@@ -1,5 +1,9 @@
 ;; allow paste and drop image from firefox/x-window
 
+;;;; todo
+;; drop no image html
+;; drop file text/uri-list
+
 (require 'dash)
 
 (defun happy-image-paste ()
@@ -53,7 +57,8 @@ finally move cursor to input alt text."
                (let ((max-mini-window-height 0))
                  (shell-command-on-region (point-min) (point-max)
                                           "jquery -e \"\\$('img').attr('src')\""
-                                          (current-buffer)))
+                                          'directly-current-buffer
+                                          'replace-region))
                (re-search-forward "\n")
                (replace-match "")
                (buffer-string))))
@@ -79,6 +84,7 @@ and return the local name."
 if base are not specified, use random name.
 if extension not specify, determine extension.
 if file already exist, make a new name."
+  (let ((buffer-origin (current-buffer)))
   (with-temp-buffer ; (url-retrieve-synchronously 'silent 'no-cookie)))
     (if extension
         (call-process "wget" nil (current-buffer) nil "--quiet" "-O" "-" url)
@@ -97,11 +103,12 @@ if file already exist, make a new name."
                           (delete-region (point-min) (1+ point-header-end)))
                  (progn (erase-buffer)
                         (error "url is not image"))))))
-    (let ((path (happy-image-populate-path base extension))
+    (let ((path (with-current-buffer buffer-origin
+                  (happy-image-populate-path base extension)))
           (coding-system-for-write 'no-conversion))
       (write-region (point-min) (point-max) path)
       (delete-other-windows)
-      path)))
+      path))))
 
 (defun happy-image-populate-path (base extension)
   "populate a file name that will not overwrite existing file"
@@ -109,24 +116,26 @@ if file already exist, make a new name."
     (format "%s/%s.%s" dir (happy-image-name-from-date) extension)))
 
 (defcustom happy-image-directory-alist
-  '(("/home/gholk/code/.*/blog/.*.md" . "image")
-    ("" . "/home/gholk/ram") ; temp buffer
-    ("/home/gholk/.*$" . "Downloads")
-    ("/.*" . "tmp"))
+  '(("~/code/.*/blog/.*.md" . "image")
+    ("~" . "ram") ; temp buffer
+    ("~/.*" . "~/Downloads")
+    ("/.*" . "/tmp"))
   "regexp of file path and its directory to store drop/paste image.
 when matching, the string will be surrounded by \"^$\"")
 
 (defun happy-image-get-image-directory (&optional file-path)
   (if (null file-path)
       (setf file-path
-            (or (buffer-file-name) "")))
+            (or (buffer-file-name)
+                (expand-file-name "~"))))
   (--> happy-image-directory-alist
    (seq-find (lambda (pair)
-              (string-match (format "^%s$" (car pair)) file-path))
+               (string-match (->> pair (car)
+                                 (expand-file-name)
+                                 (format "^%s$"))
+                             file-path))
              it)
-   (if it
-       (concat (file-name-directory (car it))
-               (cdr it)))))
+   (if it (cdr it))))
 
 (defun happy-image-name-from-date ()
   (format-time-string "%F-%H-%M-%S"))
