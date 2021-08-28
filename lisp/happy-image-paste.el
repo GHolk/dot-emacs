@@ -11,7 +11,7 @@ finally move cursor to input alt text."
     (if (seq-position clipboard-type 'image/jpeg)
         (happy-image--save-file
          (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) ".jpeg")
-      (message "no jpeg image in clipboard"))))
+      (error "no jpeg image in clipboard"))))
 
 (defun happy-image--save-file (data extension)
   "save data to local file with random name and specify extionsion"
@@ -29,8 +29,9 @@ finally move cursor to input alt text."
 
 (defun happy-image-insert-markdown-then-title (path)
   "insert path as image and move cursor to alt"
-  (insert (format "![](%s)" path))
-  (search-backward "]"))
+  (insert-before-markers "![")
+  (insert (format "](%s)" path))
+  )
     
 ;;;; not work
 ;; (defun my-dnd-func (event)
@@ -82,6 +83,12 @@ finally move cursor to input alt text."
 ;; x-dnd-known-types
 ;; x-dnd-types-alist
 
+(customize-set-value 'x-dnd-known-types
+                     (cons "text/html" x-dnd-known-types))
+(customize-set-value 'x-dnd-types-alist
+                     (cons '("text/html" . happy-image-insert-from-html)
+                           x-dnd-types-alist))
+
 ;; (defun x-dnd-save-file-insert-link (window _action url)
 ;;   ""
 ;;   (insert (format "![](%s)" url)))
@@ -127,12 +134,13 @@ if file already exist, make a new name."
                            "-O" "-" "--quiet" "--save-headers" url)
              (let ((case-fold-search t)
                    (point-header-end 0))
+               (goto-char (point-min))
                (re-search-forward "^\r$" nil 'no-error)
                (setf point-header-end (point))
                (if (re-search-backward "^content-type: image/\\(.*\\)\r"
                                        nil 'no-error)
                    (progn (setf extension (match-string 1))
-                          (delete-region (point-min) point-header-end))
+                          (delete-region (point-min) (1+ point-header-end)))
                  (progn (erase-buffer)
                         (error "url is not image"))))))
     (let ((path (happy-image-populate-path base extension))
