@@ -4,33 +4,37 @@
 
 (defun happy-image-paste ()
   "save jpeg image in clipboard to local file,
-and insert markdown format image; 
+and insert markdown format image;
 finally move cursor to input alt text."
   (interactive)
   (let ((clipboard-type (gui-backend-get-selection 'CLIPBOARD 'TARGETS)))
     (if (seq-position clipboard-type 'image/jpeg)
         (happy-image--save-file
-         (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) ".jpeg")
+         (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg")
       (error "no jpeg image in clipboard"))))
 
 (defun happy-image--save-file (data extension)
   "save data to local file with random name and specify extionsion"
-  (let* ((image-directory "./img/")
-         (temp-file-name
+  (let* ((temp-file-name
           (let ((coding-system-for-write 'raw-text)
                 (buffer-file-coding-system 'raw-text))
-            (make-directory image-directory t)
             (make-temp-file "img" nil extension data)))
-         (file-name (replace-regexp-in-string "\\." ""
-                                              (format "%s" (float-time))))
-         (new-name (concat image-directory  file-name  extension)))
+         (new-name (happy-image-populate-path temp-file-name extension)))
     (rename-file temp-file-name new-name)
-    (happy-image-insert-markdown-then-title new-name)))
+    (happy-image-insert-link new-name)))
 
-(defun happy-image-insert-markdown-then-title (path)
+(defcustom happy-image-insert-link-before-cursor "\n!["
+  "text to insert before cursor, will called with
+(format happy-image-insert-link-before-cursor link-path)")
+(defcustom happy-image-insert-link-after-cursor "](%s)\n"
+  "text to insert before cursor, will called with
+(format happy-image-insert-link-after-cursor link-path)")
+(defun happy-image-insert-link (path)
   "insert path as image and move cursor to alt"
-  (insert-before-markers "![")
-  (insert (format "](%s)" path)))
+  (insert (format happy-image-insert-link-before-cursor path))
+  (let ((text-after (format happy-image-insert-link-after-cursor path)))
+    (insert text-after)
+    (backward-char (length text-after))))
 
 ;; firefox drop image
 ;; (text/x-moz-url _NETSCAPE_URL text/x-moz-url-data text/x-moz-url-desc application/x-moz-custom-clipdata text/_moz_htmlcontext text/_moz_htmlinfo text/html text/unicode text/plain;charset=utf-8 text/plain application/x-moz-nativeimage application/x-moz-file-promise XdndDirectSave0 application/x-moz-file-promise-url application/x-moz-file-promise-dest-filename)
@@ -43,10 +47,6 @@ finally move cursor to input alt text."
                      (cons '("text/html" . happy-image-insert-from-html)
                            x-dnd-types-alist))
 
-;; (defun x-dnd-save-file-insert-link (window _action url)
-;;   ""
-;;   (insert (format "![](%s)" url)))
-
 (defun happy-image-insert-from-html (window action html)
   (let ((url (with-temp-buffer
                (x-dnd-insert-utf16-text window action html)
@@ -57,8 +57,7 @@ finally move cursor to input alt text."
                (re-search-forward "\n")
                (replace-match "")
                (buffer-string))))
-    (insert (format "\n![](%s)\n" (happy-image-url-to-local url)))
-    (search-backward "]")))
+    (happy-image-insert-link (happy-image-url-to-local url))))
 
 (defun happy-image-url-to-local (url)
   "download image from url, naming it properly,
@@ -71,12 +70,12 @@ and return the local name."
     (let ((case-fold-search t)
           (base (file-name-base file-name))
           (extension (file-name-extension file-name)))
-      (if (string-match "jpe?g\\|png\\|gif\\|webm" extension)
+      (if (string-match "\\(jpe?g\\|png\\|gif\\|webm\\)$" extension)
           (happy-image-download-safe url base extension)
         (happy-image-download-safe url nil nil)))))
 
 (defun happy-image-download-safe (url base extension)
-  "download url to filename. 
+  "download url to filename.
 if base are not specified, use random name.
 if extension not specify, determine extension.
 if file already exist, make a new name."
@@ -93,28 +92,41 @@ if file already exist, make a new name."
                (if (re-search-backward "^content-type: image/\\(.*\\)\r"
                                        nil 'no-error)
                    (progn (setf extension (match-string 1))
+                          (if (string= extension "jpeg")
+                              (setf extension "jpg"))
                           (delete-region (point-min) (1+ point-header-end)))
                  (progn (erase-buffer)
                         (error "url is not image"))))))
-    (let ((path (happy-image-populate-path url base extension))
+    (let ((path (happy-image-populate-path base extension))
           (coding-system-for-write 'no-conversion))
       (write-region (point-min) (point-max) path)
-      (erase-buffer)
       (delete-other-windows)
       path)))
 
-(defun happy-image-populate-path (url base extension)
+(defun happy-image-populate-path (base extension)
   "populate a file name that will not overwrite existing file"
-  (let ((dir "./img"))
-    (if (or (null base) (string-match "^[0-9]*$" base))
-      (setf base (format-time-string "%F-%H-%M-%S")))
-    (while (file-exists-p (concat dir "/" base "." extension))
-      (if (string-match "\\(.*\\)-\\([0-9]+\\)$" base)
-          (setf base (format "%s-%d"
-                             (match-string 1 base)
-                             (-> (match-string 2 base)
-                                 (string-to-number)
-                                 (1+))))
-        (setf base (concat base "-1"))))
-    (concat dir "/" base "." extension)))
+  (let ((dir (happy-image-get-image-directory)))
+    (format "%s/%s.%s" dir (happy-image-name-from-date) extension)))
 
+(defcustom happy-image-directory-alist
+  '(("/home/gholk/code/.*/blog/.*.md" . "image")
+    ("" . "/home/gholk/ram") ; temp buffer
+    ("/home/gholk/.*$" . "Downloads")
+    ("/.*" . "tmp"))
+  "regexp of file path and its directory to store drop/paste image.
+when matching, the string will be surrounded by \"^$\"")
+
+(defun happy-image-get-image-directory (&optional file-path)
+  (if (null file-path)
+      (setf file-path
+            (or (buffer-file-name) "")))
+  (--> happy-image-directory-alist
+   (seq-find (lambda (pair)
+              (string-match (format "^%s$" (car pair)) file-path))
+             it)
+   (if it
+       (concat (file-name-directory (car it))
+               (cdr it)))))
+
+(defun happy-image-name-from-date ()
+  (format-time-string "%F-%H-%M-%S"))
