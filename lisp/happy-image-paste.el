@@ -30,58 +30,12 @@ finally move cursor to input alt text."
 (defun happy-image-insert-markdown-then-title (path)
   "insert path as image and move cursor to alt"
   (insert-before-markers "![")
-  (insert (format "](%s)" path))
-  )
-    
-;;;; not work
-;; (defun my-dnd-func (event)
-;;   (interactive "e")
-;;   (message "my-dnd-func")
-;;   (goto-char (nth 1 (event-start event)))
-;;   (x-focus-frame nil)
-;;   (setf event-current event)
-;;   (let* ((payload (car (last event)))
-;;          (type (car payload))
-;;          (fname (cadr payload))
-;;          (img-regexp "\\(png\\|jp[e]?g\\)\\>"))
-;;     (cond
-;;      ;; insert image link
-;;      ((and  (eq 'drag-n-drop (car event))
-;;             (eq 'file type)
-;;             (string-match img-regexp fname))
-;;       (insert (format "![](%s)" fname))
-;;       (org-display-inline-images t t))
-;;      ;; insert image link with caption
-;;      ((and  (eq 'C-drag-n-drop (car event))
-;;             (eq 'file type)
-;;             (string-match img-regexp fname))
-;;       (insert "#+ATTR_ORG: :width 300\n")
-;;       (insert (concat  "#+CAPTION: " (read-input "Caption: ") "\n"))
-;;       (insert (format "[[%s]]" fname))
-;;       (org-display-inline-images t t))
-;;      ;; C-drag-n-drop to open a file
-;;      ((and  (eq 'C-drag-n-drop (car event))
-;;             (eq 'file type))
-;;       (find-file fname))
-;;      ((and (eq 'M-drag-n-drop (car event))
-;;            (eq 'file type))
-;;       (insert (format "[[attachfile:%s]]" fname)))
-;;      ;; regular drag and drop on file
-;;      ((eq 'file type)
-;;       (insert (format "[[%s]]\n" fname)))
-;;      (t
-;;       (error "I am not equipped for dnd on %s" payload)))))
-;;
-;; (define-key evil-normal-state-map (kbd "<drag-n-drop>") 'my-dnd-func)
+  (insert (format "](%s)" path)))
 
 ;; firefox drop image
 ;; (text/x-moz-url _NETSCAPE_URL text/x-moz-url-data text/x-moz-url-desc application/x-moz-custom-clipdata text/_moz_htmlcontext text/_moz_htmlinfo text/html text/unicode text/plain;charset=utf-8 text/plain application/x-moz-nativeimage application/x-moz-file-promise XdndDirectSave0 application/x-moz-file-promise-url application/x-moz-file-promise-dest-filename)
 ;; file explorer
 ;; (text/uri-list  )
-
-
-;; x-dnd-known-types
-;; x-dnd-types-alist
 
 (customize-set-value 'x-dnd-known-types
                      (cons "text/html" x-dnd-known-types))
@@ -126,8 +80,7 @@ and return the local name."
 if base are not specified, use random name.
 if extension not specify, determine extension.
 if file already exist, make a new name."
-  (with-current-buffer ; (url-retrieve-synchronously 'silent 'no-cookie)))
-      (get-buffer-create "*Happy Image Download*")
+  (with-temp-buffer ; (url-retrieve-synchronously 'silent 'no-cookie)))
     (if extension
         (call-process "wget" nil (current-buffer) nil "--quiet" "-O" "-" url)
       (progn (call-process "wget" nil (current-buffer) nil
@@ -143,18 +96,17 @@ if file already exist, make a new name."
                           (delete-region (point-min) (1+ point-header-end)))
                  (progn (erase-buffer)
                         (error "url is not image"))))))
-    (let ((path (happy-image-populate-path base extension))
+    (let ((path (happy-image-populate-path url base extension))
           (coding-system-for-write 'no-conversion))
       (write-region (point-min) (point-max) path)
       (erase-buffer)
       (delete-other-windows)
       path)))
 
-(defun happy-image-populate-path (base extension)
+(defun happy-image-populate-path (url base extension)
   "populate a file name that will not overwrite existing file"
-  (let ((dir "./img")
-        (repeat 1))
-    (unless base
+  (let ((dir "./img"))
+    (if (or (null base) (string-match "^[0-9]*$" base))
       (setf base (format-time-string "%F-%H-%M-%S")))
     (while (file-exists-p (concat dir "/" base "." extension))
       (if (string-match "\\(.*\\)-\\([0-9]+\\)$" base)
