@@ -56,13 +56,13 @@ if path is nil, get path from cursor position."
 ;; file explorer
 ;; (text/uri-list  )
 
-(customize-set-value 'x-dnd-known-types
-                     (cons "text/html" x-dnd-known-types))
-(customize-set-value 'x-dnd-types-alist
-                     (cons '("text/html" . happy-image-insert-from-html)
-                           x-dnd-types-alist))
+(defun happy-image-insert-from-drop-html (window action html)
+  "this function handle x-dnd's `text/html` drop event.
+if html contain `<img>` (detect with node.js jquery script),
+save image to hard drive and insert path into current file.
 
-(defun happy-image-insert-from-html (window action html)
+node.js jquery script:
+https://github.com/GHolk/loco/blob/313b392/bin/jquery.js"
   (let ((url (with-temp-buffer
                (x-dnd-insert-utf16-text window action html)
                (let ((max-mini-window-height 0))
@@ -74,7 +74,15 @@ if path is nil, get path from cursor position."
                (replace-match "")
                (buffer-string))))
     (if (string-match "tp" url)
-        (happy-image-insert-link (happy-image-url-to-local url)))))
+        (happy-image-insert-link (happy-image-url-to-local url))
+      (x-dnd-insert-utf16-text window action html)))
+    'copy)
+
+(customize-set-value 'x-dnd-known-types
+                     (cons "text/html" x-dnd-known-types))
+(customize-set-value 'x-dnd-types-alist
+                     (cons '("text/html" . happy-image-insert-from-drop-html)
+                           x-dnd-types-alist))
 
 (defun happy-image-url-to-local (url)
   "download image from url, naming it properly,
@@ -97,30 +105,26 @@ if base are not specified, use random name.
 if extension not specify, determine extension.
 if file already exist, make a new name."
   (let ((buffer-origin (current-buffer)))
-  (with-temp-buffer ; (url-retrieve-synchronously 'silent 'no-cookie)))
-    (if extension
-        (call-process "wget" nil (current-buffer) nil "--quiet" "-O" "-" url)
-      (progn (call-process "wget" nil (current-buffer) nil
-                           "-O" "-" "--quiet" "--save-headers" url)
-             (let ((case-fold-search t)
-                   (point-header-end 0))
-               (goto-char (point-min))
-               (re-search-forward "^\r$" nil 'no-error)
-               (setf point-header-end (point))
-               (if (re-search-backward "^content-type: image/\\(.*\\)\r"
-                                       nil 'no-error)
-                   (progn (setf extension (match-string 1))
-                          (if (string= extension "jpeg")
-                              (setf extension "jpg"))
-                          (delete-region (point-min) (1+ point-header-end)))
-                 (progn (erase-buffer)
-                        (error "url is not image"))))))
-    (let ((path (with-current-buffer buffer-origin
-                  (happy-image-populate-path base extension)))
-          (coding-system-for-write 'no-conversion))
-      (write-region (point-min) (point-max) path)
-      (delete-other-windows)
-      path))))
+    (with-temp-buffer ; (url-retrieve-synchronously 'silent 'no-cookie)))
+      (if extension
+          (call-process "wget" nil (current-buffer) nil "--quiet" "-O" "-" url)
+        (let ((case-fold-search t)
+              (point-header-end 0))
+          (call-process "wget" nil (current-buffer) nil
+                        "-O" "-" "--quiet" "--save-headers" url)
+          (goto-char (point-min))
+          (re-search-forward "^\r$" nil 'no-error)
+          (setf point-header-end (point))
+          (re-search-backward "^content-type: image/\\(.*\\)\r" nil)
+          (setf extension (match-string 1))
+          (if (string= extension "jpeg")
+              (setf extension "jpg"))
+          (delete-region (point-min) (1+ point-header-end))))
+      (let ((path (with-current-buffer buffer-origin
+                    (happy-image-populate-path base extension)))
+            (coding-system-for-write 'no-conversion))
+        (write-region (point-min) (point-max) path)
+        path))))
 
 (defun happy-image-populate-path (base extension)
   "populate a file name that will not overwrite existing file"
