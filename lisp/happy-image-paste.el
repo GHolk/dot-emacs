@@ -1,7 +1,6 @@
 ;; allow paste and drop image from firefox/x-window
 
 ;;;; todo
-;; drop no image html
 ;; drop file text/uri-list
 
 (require 'dash)
@@ -9,13 +8,25 @@
 (defun happy-image-paste ()
   "save jpeg image in clipboard to local file,
 and insert markdown format image;
-finally move cursor to input alt text."
+finally move cursor to input alt text.
+return nil if no image data in clipboard."
   (interactive)
   (let ((clipboard-type (gui-backend-get-selection 'CLIPBOARD 'TARGETS)))
     (if (seq-position clipboard-type 'image/jpeg)
         (happy-image--save-file
-         (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg")
-      (error "no jpeg image in clipboard"))))
+         (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg"))))
+
+(defun happy-image-remove-file (&optional confirm path)
+  "remove image around cursor from hard drive.
+if confirm is nil or 'prompt, prompt confirm before delete.
+if path is nil, get path from cursor position."
+  (interactive)
+  (unless path
+    (require 'thingatpt)
+    (setf path (thing-at-point 'filename 'no-text-property)))
+  (if (or (and confirm (not (eq confirm 'prompt)))
+          (y-or-n-p (format "delete %s?" path)))
+      (delete-file path 'try-trash-can)))
 
 (defun happy-image--save-file (data extension)
   "save data to local file with random name and specify extionsion"
@@ -62,7 +73,8 @@ finally move cursor to input alt text."
                (re-search-forward "\n")
                (replace-match "")
                (buffer-string))))
-    (happy-image-insert-link (happy-image-url-to-local url))))
+    (if (string-match "tp" url)
+        (happy-image-insert-link (happy-image-url-to-local url)))))
 
 (defun happy-image-url-to-local (url)
   "download image from url, naming it properly,
@@ -116,9 +128,7 @@ if file already exist, make a new name."
     (format "%s/%s.%s" dir (happy-image-name-from-date) extension)))
 
 (defcustom happy-image-directory-alist
-  '(("~/code/.*/blog/.*.md" . "image")
-    ("~" . "ram") ; temp buffer
-    ("~/.*" . "~/Downloads")
+  '(("~/.*" . "~/Downloads")
     ("/.*" . "/tmp"))
   "regexp of file path and its directory to store drop/paste image.
 when matching, the string will be surrounded by \"^$\"")
@@ -139,3 +149,5 @@ when matching, the string will be surrounded by \"^$\"")
 
 (defun happy-image-name-from-date ()
   (format-time-string "%F-%H-%M-%S"))
+
+(provide 'happy-image-paste)

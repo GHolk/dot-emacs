@@ -42,6 +42,17 @@
 (require 'sdcv)
 (global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
+(require 'happy-image-paste)
+(customize-set-value 'happy-image-directory-alist
+                     (append '(("~/code/.*/blog/.*.md" . "image")
+                               ("~" . "ram"))
+                             happy-image-directory-alist))
+(defun evil-paste-happy-image-paste-advice (&rest _)
+  "if clipboard contain image data, paste it."
+  (happy-image-paste))
+(advice-add 'evil-paste-after :before-until
+            #'evil-paste-happy-image-paste-advice)
+
 (defun disable-pangu-mode ()
   (pangu-spacing-mode -1))
 (add-hook 'nxml-mode-hook #'disable-pangu-mode)
@@ -122,6 +133,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")))
+ '(delete-by-moving-to-trash t)
  '(el-get-user-package-directory "~/.emacs.d/el-get-user/init")
  '(evil-disable-insert-state-bindings t)
  '(evil-find-skip-newlines t t)
