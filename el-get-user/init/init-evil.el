@@ -96,6 +96,25 @@ detail function would be in evil-search-incrementally ."
 (define-key evil-list-view-mode-map
   (kbd "q") #'quit-window)
 
+(defun evil-keep-register-around-post-command-advice (post-command &rest args)
+  "undo register reset in `evil-normal-post-command`with `:around` advice."
+  (let ((register evil-this-register))
+    (prog1 (apply post-command args)
+      (setq evil-this-register register))))
+
+(defun evil-keep-register-around-post-command ()
+  "toggle evil-keep-register, meaning there is no default register `\"`.
+the register specified with `\"` will keep working,
+so you can keep append to register with `\"A`."
+  (interactive)
+  (let* ((body 'evil-normal-post-command)
+         (advice #'evil-keep-register-around-post-command-advice)
+         (enable (advice-member-p advice body)))
+    (if enable
+        (advice-remove body advice)
+      (advice-add body :around advice))
+    (message "evil-keep-register is %s" (not enable))))
+
 (evil-mode 1)
 
 
