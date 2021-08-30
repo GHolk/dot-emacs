@@ -16,6 +16,20 @@ return nil if no image data in clipboard."
         (happy-image--save-file
          (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg"))))
 
+(defcustom happy-image-screen-shot-mouse-command
+  "xfce4-screenshooter --mouse --clipboard --region
+xclip -out -selection clipboard -target image/jpeg > '%s'"
+  "command to run to screen shot and save to file")
+
+(defun happy-image-screen-shot-mouse (&optional output-path)
+  "call `happy-image-screen-shot-command' as
+`(format command output-path)' and insert output-path as image link."
+  (interactive)
+  (unless output-path
+    (setf output-path (happy-image-populate-path "" "jpg")))
+  (shell-command (format happy-image-screen-shot-mouse-command output-path))
+  (happy-image-insert-link output-path))
+
 (defun happy-image-remove-file (&optional confirm path)
   "remove image around cursor from hard drive.
 if confirm is nil or 'prompt, prompt confirm before delete.
@@ -57,8 +71,8 @@ if path is nil, get path from cursor position."
 ;; (text/uri-list  )
 
 (defun happy-image-insert-from-drop-html (window action html)
-  "this function handle x-dnd's `text/html` drop event.
-if html contain `<img>` (detect with node.js jquery script),
+  "this function handle x-dnd's `text/html' drop event.
+if html contain `<img>' (detect with node.js jquery script),
 save image to hard drive and insert path into current file.
 
 node.js jquery script:
