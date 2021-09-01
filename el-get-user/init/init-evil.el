@@ -43,6 +43,11 @@
 (define-key evil-motion-state-map
   (kbd "TAB") nil)
 
+(define-key Info-mode-map (kbd "C-n") #'Info-history-forward)
+(define-key Info-mode-map (kbd "C-p") #'Info-history-back)
+(define-key help-mode-map (kbd "C-n") #'help-go-forward)
+(define-key help-mode-map (kbd "C-p") #'help-go-back)
+
 ;; slow move
 (define-key evil-motion-state-map
   (kbd "C-f") #'evil-scroll-down)
@@ -116,22 +121,28 @@ so you can keep append to register with `\"A`."
     (message "evil-keep-register is %s" (not enable))))
 
 (defun evil-paste-kbd-macro-advice (&rest argv)
-  "make evil paste kbd-macro if register content is a macro
-which contain no character data.
-if the macro contain character data only
-(which mean the content of register is plain string),
-you can paste it with evil's built-in command and quote it manually."
+  "make evil paste kbd-macro if register content is a macro.
+this function check whether content macro by:
+ 1. equal to `last-kbd-macro'
+ 2. is a vector but not string
+ 3. contain unprintable character"
   (if (and (>= (length argv) 2)
            (second argv))
       (let* ((register (second argv))
              (register-pair (assoc register register-alist))
-             (last-kbd-macro nil))
-        (when (and register-pair
-                   (not (stringp (cdr register-pair))))
-          (setf last-kbd-macro (cdr register-pair))
-          (goto-char (1+ (point)))
-          (insert-kbd-macro '##)
-          t))))
+             (content (if register-pair (cdr register-pair))))
+        (if (and content
+                 (or (eq last-kbd-macro content)
+                     (vectorp content)
+                     (string-match "[^\t[:print:]\n\r]" content)))
+            (let ((last-kbd-macro content))
+              (forward-line)
+              (beginning-of-line)
+              (insert-kbd-macro '##)
+              (forward-line -2)
+              (search-forward "setq last-kbd-macro")
+              (replace-match "execute-kbd-macro")
+              t)))))
 (advice-add 'evil-paste-after :before-until
             'evil-paste-kbd-macro-advice)
 
