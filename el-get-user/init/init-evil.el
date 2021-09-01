@@ -115,6 +115,26 @@ so you can keep append to register with `\"A`."
       (advice-add body :around advice))
     (message "evil-keep-register is %s" (not enable))))
 
+(defun evil-paste-kbd-macro-advice (&rest argv)
+  "make evil paste kbd-macro if register content is a macro
+which contain no character data.
+if the macro contain character data only
+(which mean the content of register is plain string),
+you can paste it with evil's built-in command and quote it manually."
+  (if (and (>= (length argv) 2)
+           (second argv))
+      (let* ((register (second argv))
+             (register-pair (assoc register register-alist))
+             (last-kbd-macro nil))
+        (when (and register-pair
+                   (not (stringp (cdr register-pair))))
+          (setf last-kbd-macro (cdr register-pair))
+          (goto-char (1+ (point)))
+          (insert-kbd-macro '##)
+          t))))
+(advice-add 'evil-paste-after :before-until
+            'evil-paste-kbd-macro-advice)
+
 (evil-mode 1)
 
 
