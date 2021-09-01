@@ -12,22 +12,27 @@ finally move cursor to input alt text.
 return nil if no image data in clipboard."
   (interactive)
   (let ((clipboard-type (gui-backend-get-selection 'CLIPBOARD 'TARGETS)))
-    (if (seq-position clipboard-type 'image/jpeg)
-        (happy-image--save-file
-         (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg"))))
+    (when (seq-position clipboard-type 'image/jpeg)
+      (happy-image--save-file
+       (gui-backend-get-selection 'CLIPBOARD 'image/jpeg) "jpg")
+      t)))
 
 (defcustom happy-image-screen-shot-mouse-command
   "xfce4-screenshooter --mouse --clipboard --region
 xclip -out -selection clipboard -target image/jpeg > '%s'"
   "command to run to screen shot and save to file")
 
-(defun happy-image-screen-shot-mouse (&optional output-path)
+(defun happy-image-screen-shot-mouse (&optional not-minimize output-path)
   "call `happy-image-screen-shot-command' as
-`(format command output-path)' and insert output-path as image link."
+`(format command output-path)' and insert output-path as image link.
+if not-minimize is t, this command will not
+minimize emacs when taking screen shot"
   (interactive)
   (unless output-path
-    (setf output-path (happy-image-populate-path "" "jpg")))
+    (setf output-path (happy-image-populate-path "jpg")))
+  (unless not-minimize (lower-frame))
   (shell-command (format happy-image-screen-shot-mouse-command output-path))
+  (unless not-minimize (raise-frame))
   (happy-image-insert-link output-path))
 
 (defun happy-image-remove-file (&optional confirm path)
@@ -48,7 +53,7 @@ if path is nil, get path from cursor position."
           (let ((coding-system-for-write 'raw-text)
                 (buffer-file-coding-system 'raw-text))
             (make-temp-file "img" nil extension data)))
-         (new-name (happy-image-populate-path temp-file-name extension)))
+         (new-name (happy-image-populate-path extension)))
     (rename-file temp-file-name new-name)
     (happy-image-insert-link new-name)))
 
@@ -135,12 +140,12 @@ if file already exist, make a new name."
               (setf extension "jpg"))
           (delete-region (point-min) (1+ point-header-end))))
       (let ((path (with-current-buffer buffer-origin
-                    (happy-image-populate-path base extension)))
+                    (happy-image-populate-path extension)))
             (coding-system-for-write 'no-conversion))
         (write-region (point-min) (point-max) path)
         path))))
 
-(defun happy-image-populate-path (base extension)
+(defun happy-image-populate-path (extension)
   "populate a file name that will not overwrite existing file"
   (let ((dir (happy-image-get-image-directory)))
     (format "%s/%s.%s" dir (happy-image-name-from-date) extension)))
