@@ -20,7 +20,8 @@ return nil if no image data in clipboard."
 (defcustom happy-image-screen-shot-mouse-command
   "xfce4-screenshooter --mouse --clipboard --region
 xclip -out -selection clipboard -target image/jpeg > '%s'"
-  "command to run to screen shot and save to file")
+  "command to run to screen shot and save to file"
+  :type 'string)
 
 (defun happy-image-screen-shot-mouse (&optional not-minimize output-path)
   "call `happy-image-screen-shot-command' as
@@ -57,12 +58,15 @@ if path is nil, get path from cursor position."
     (rename-file temp-file-name new-name)
     (happy-image-insert-link new-name)))
 
-(defcustom happy-image-insert-link-before-cursor "\n!["
+(defcustom happy-image-insert-link-before-cursor
+  "\n!["
   "text to insert before cursor, will called with
-(format happy-image-insert-link-before-cursor link-path)")
+(format happy-image-insert-link-before-cursor link-path)"
+  :type 'string)
 (defcustom happy-image-insert-link-after-cursor "](%s)\n"
   "text to insert before cursor, will called with
-(format happy-image-insert-link-after-cursor link-path)")
+(format happy-image-insert-link-after-cursor link-path)"
+  :type 'string)
 (defun happy-image-insert-link (path)
   "insert path as image and move cursor to alt"
   (insert (format happy-image-insert-link-before-cursor path))
@@ -154,7 +158,8 @@ if file already exist, make a new name."
   '(("~/.*" . "~/Downloads")
     ("/.*" . "/tmp"))
   "regexp of file path and its directory to store drop/paste image.
-when matching, the string will be surrounded by \"^$\"")
+when matching, the string will be surrounded by \"^$\""
+  :type '(alist :key-type string :value-type string))
 
 (defvar happy-image-save-directory nil
   "directory to save image from happy-image-* function
