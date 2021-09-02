@@ -100,7 +100,6 @@
 (define-key emacs-lisp-mode-map
   (kbd "TAB") 'completion-at-point)
 
-(customize-set-variable 'default-frame-alist '((height . 24)))
 (set-face-attribute 'default nil :height 150)
 
 (add-to-list 'auto-mode-alist '("/home/gholk/gholk/text/" . markdown-mode))
@@ -129,6 +128,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(Info-additional-directory-list (quote ("/home/gholk/.local/share/info/")))
+ '(default-frame-alist (quote ((height . 24))))
  '(delete-by-moving-to-trash t)
  '(el-get-user-package-directory "~/.emacs.d/el-get-user/init")
  '(evil-disable-insert-state-bindings t)
