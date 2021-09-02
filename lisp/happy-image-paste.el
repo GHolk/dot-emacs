@@ -156,19 +156,29 @@ if file already exist, make a new name."
   "regexp of file path and its directory to store drop/paste image.
 when matching, the string will be surrounded by \"^$\"")
 
+(defvar happy-image-save-directory nil
+  "directory to save image from happy-image-* function
+you can use `.dir-locals.el' to set this variable
+in different directory.
+if nil, happy-image will try `happy-image-directory-alist'.")
+
 (defun happy-image-get-image-directory (&optional file-path)
   (if (null file-path)
       (setf file-path
             (or (buffer-file-name)
                 (expand-file-name "~"))))
-  (--> happy-image-directory-alist
-   (seq-find (lambda (pair)
-               (string-match (->> pair (car)
-                                 (expand-file-name)
-                                 (format "^%s$"))
-                             file-path))
-             it)
-   (if it (cdr it))))
+  (if (and (stringp happy-image-save-directory)
+           (file-directory-p happy-image-save-directory))
+      happy-image-save-directory
+    (--> happy-image-directory-alist
+         (seq-find (lambda (pair)
+                     (string-match (->> pair (car)
+                                        (expand-file-name)
+                                        (format "^%s$"))
+                                   file-path))
+                   it)
+         (if it (cdr it)
+           (error "no specified directory to save image!")))))
 
 (defun happy-image-name-from-date ()
   (format-time-string "%F-%H-%M-%S"))

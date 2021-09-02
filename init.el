@@ -43,10 +43,6 @@
 (global-set-key (kbd "C-c d") #'kid-sdcv-to-buffer)
 
 (require 'happy-image-paste)
-(customize-set-value 'happy-image-directory-alist
-                     (append '(("~/code/.*/blog/.*.md" . "image")
-                               ("~" . "ram"))
-                             happy-image-directory-alist))
 (defun evil-paste-happy-image-paste-advice (&rest _)
   "if clipboard contain image data, paste it."
   (happy-image-paste))
@@ -156,13 +152,18 @@
  '(evil-want-Y-yank-to-eol t)
  '(evil-want-fine-undo t)
  '(indent-tabs-mode nil)
- '(js2-mode-assume-strict nil t)
- '(js2-strict-missing-semi-warning nil t)
+ '(js2-mode-assume-strict nil)
+ '(js2-strict-missing-semi-warning nil)
  '(org-agenda-files nil)
- '(package-selected-packages
+ '(package-archives
    (quote
-    (color-theme-sanityinc-solarized "color-theme-solarized" color-theme-solarize "color-theme-solarize" color-theme-solarized ## "evil-vimish-fold" evil-vimish-fold rainbow-mode)))
+    (("gnu" . "http://elpa.gnu.org/packages/")
+     ("marmalade" . "http://marmalade-repo.org/packages/")
+     ("melpa-stable" . "http://stable.melpa.org/packages/"))))
  '(pangu-spacing-real-insert-separtor t)
+ '(safe-local-variable-values
+   (quote
+    ((happy-image-save-directory . "image"))))
  '(select-enable-primary t)
  '(sentence-end-base "[,.?!…‽][]\"'”’)}]*")
  '(sentence-end-without-space "。．？！，；")
