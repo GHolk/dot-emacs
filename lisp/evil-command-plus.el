@@ -197,5 +197,10 @@ in evil-inner-text-objects-map ."
 (define-key evil-motion-state-map (kbd "M-b")
   #'evil-backward-text-object)
 
+(define-key Info-mode-map (kbd "C-n") #'Info-history-forward)
+(define-key Info-mode-map (kbd "C-p") #'Info-history-back)
+(define-key help-mode-map (kbd "C-n") #'help-go-forward)
+(define-key help-mode-map (kbd "C-p") #'help-go-back)
+
 ;; provide feature name prevent re include
 (provide 'evil-command-plus)

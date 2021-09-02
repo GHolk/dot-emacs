@@ -43,11 +43,6 @@
 (define-key evil-motion-state-map
   (kbd "TAB") nil)
 
-(define-key Info-mode-map (kbd "C-n") #'Info-history-forward)
-(define-key Info-mode-map (kbd "C-p") #'Info-history-back)
-(define-key help-mode-map (kbd "C-n") #'help-go-forward)
-(define-key help-mode-map (kbd "C-p") #'help-go-back)
-
 ;; slow move
 (define-key evil-motion-state-map
   (kbd "C-f") #'evil-scroll-down)
