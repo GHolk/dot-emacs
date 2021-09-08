@@ -1,10 +1,13 @@
-(defun kid-sdcv-to-buffer ()
+(defun kid-sdcv-to-buffer (&optional word)
+  "lookup word with sdcv. if word is not specified, 
+prompt from input, and use word the cursor point to as default word."
   (interactive)
-  (let ((word (if mark-active
-                  (buffer-substring-no-properties (region-beginning) (region-end))
-                (current-word nil t))))
+  (unless word
+    (setq word (if mark-active
+                   (buffer-substring-no-properties (region-beginning) (region-end))
+                 (current-word nil t)))
     (setq word (read-string (format "查字典 (默认 %s): " word)
-                            nil nil word))
+                            nil nil word)))
     (set-buffer (get-buffer-create "*sdcv*"))
     (buffer-disable-undo)
     (erase-buffer)
@@ -30,7 +33,17 @@
              (local-set-key (kbd "SPC") 'scroll-up)
              (local-set-key (kbd "DEL") 'scroll-down)
              (local-set-key (kbd "q") 'quit-window)
+             (local-set-key (kbd "<mouse-2>") 'kid-sdcv-lookup-from-selection)
+             (evil-local-set-key 'motion (kbd "j")
+                            'evil-next-visual-line)
+             (evil-local-set-key 'motion (kbd "k")
+                            'evil-previous-visual-line)
              (evil-motion-state))
-           (goto-char (point-min))))))))
+           (goto-char (point-min)))))))
+
+(defun kid-sdcv-lookup-from-selection ()
+  "lookup word with sdcv. get word from gui primary selection."
+  (interactive)
+  (kid-sdcv-to-buffer (gui-get-primary-selection)))
 
 (provide 'sdcv)
